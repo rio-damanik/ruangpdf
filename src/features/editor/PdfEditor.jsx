@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   ArrowDownToLine, ArrowLeft, ArrowRight, Bold, Check, ChevronDown, CircleHelp,
-  FilePlus2, Highlighter, Image, Italic, Link2, ListOrdered, Maximize,
+  FilePlus2, Highlighter, Image, ImagePlus, Italic, Link2, ListOrdered, Maximize,
   MessageSquareText, Minimize, Palette, PenTool, Printer, Redo2, RotateCw,
   Scissors, Search, Stamp, TextCursorInput, Trash2, Underline, Undo2, X,
   AlignLeft, AlignCenter, AlignRight, Square, Circle, Zap, Layout, View,
