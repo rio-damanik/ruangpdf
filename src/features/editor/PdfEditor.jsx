@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   ArrowDownToLine, ArrowLeft, ArrowRight, Bold, Check, ChevronDown, CircleHelp,
-  FilePlus2, Highlighter, Image, ImagePlus, Italic, Link2, ListOrdered, Maximize,
+  FilePlus2, Highlighter, Image as ImageIcon, ImagePlus, Italic, Link2, ListOrdered, Maximize,
   MessageSquareText, Minimize, Palette, PenTool, Printer, Redo2, RotateCw,
   Scissors, Search, Stamp, TextCursorInput, Trash2, Underline, Undo2, X,
   AlignLeft, AlignCenter, AlignRight, Square, Circle, Zap, Layout, View,
@@ -843,7 +843,7 @@ export default function PdfEditor({ initialFile = null, ownerId, onBack, onAuthR
              <div className="ribbon-section">
                <div className="ribbon-section-title">Sisipkan</div>
                <button className="ribbon-btn" onClick={() => { setActiveTool('text'); setMessage('Klik halaman untuk menempatkan teks.'); }} title="Teks"><TextCursorInput size={14} /><span>Teks</span></button>
-               <button className="ribbon-btn" onClick={() => { setActiveTool('image'); imageInput.current?.click(); }} title="Gambar"><Image size={14} /><span>Gambar</span></button>
+               <button className="ribbon-btn" onClick={() => { setActiveTool('image'); imageInput.current?.click(); }} title="Gambar"><ImageIcon size={14} /><span>Gambar</span></button>
                <input ref={imageInput} type="file" accept="image/png,image/jpeg" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) { setImageFile(f); setImageUrl(URL.createObjectURL(f)); } }} />
                <button className="ribbon-btn" onClick={() => { setActiveTool('stamp'); setMessage('Klik halaman untuk menempatkan stempel.'); }} title="Stempel"><Stamp size={14} /><span>Stempel</span></button>
                <button className="ribbon-btn" onClick={() => { setActiveTool('note'); setMessage('Klik halaman untuk menempatkan catatan.'); }} title="Catatan"><MessageSquareText size={14} /><span>Catatan</span></button>
