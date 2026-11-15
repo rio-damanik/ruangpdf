@@ -5,7 +5,8 @@ import {
   MessageSquareText, Minimize, Palette, PenTool, Printer, Redo2, RotateCw,
   Scissors, Search, Stamp, TextCursorInput, Trash2, Underline, Undo2, X,
   AlignLeft, AlignCenter, AlignRight, Square, Circle, Zap, Layout, View,
-  Eye, EyeOff, ZoomIn, ZoomOut, Menu, BarChart3,
+  Eye, EyeOff, ZoomIn, ZoomOut, Menu, BarChart3, Table, Columns, Rows, FileText, ChevronUp,
+  PanelRight, PanelBottom, PanelLeft, PanelTop, Grid3x3, Type, Heading, Image as LucideImage,
 } from 'lucide-react';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import * as pdfjs from 'pdfjs-dist';
@@ -62,7 +63,7 @@ export default function PdfEditor({ initialFile = null, ownerId, onBack, onAuthR
   const [edits, setEdits] = useState([]);
   const [activeTab, setActiveTab] = useState('home');
   const [activeTool, setActiveTool] = useState('text');
-  const [fmt, setFmt] = useState({ family: 'Helvetica', bold: false, italic: false, underline: false, strikethrough: false, size: 18, color: '#263c63', highlight: '#ffff00', align: 'left' });
+  const [fmt, setFmt] = useState({ family: 'Helvetica', bold: false, italic: false, underline: false, strikethrough: false, size: 18, color: '#263c63', highlight: '#ffff00', align: 'left', spacing: 1.4, margin: 72, header: '', footer: '', showHeader: false, showFooter: false });
   const [text, setText] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [imageFile, setImageFile] = useState(null);
@@ -77,11 +78,18 @@ export default function PdfEditor({ initialFile = null, ownerId, onBack, onAuthR
   const [zoom, setZoom] = useState(100);
   const [showRuler, setShowRuler] = useState(false);
   const [showNav, setShowNav] = useState(true);
+  const [showFind, setShowFind] = useState(false);
+  const [findText, setFindText] = useState('');
+  const [findResults, setFindResults] = useState([]);
+  const [currentFindIndex, setCurrentFindIndex] = useState(0);
+  const [tableRows, setTableRows] = useState(3);
+  const [tableCols, setTableCols] = useState(3);
   const canvasRef = useRef(null);
   const canvasWrapRef = useRef(null);
   const rulerRef = useRef(null);
   const fileInput = useRef(null);
   const imageInput = useRef(null);
+  const pagesInput = useRef(null);
   const fileRef = useRef(file);
   const pdfRef = useRef(null);
   const editIdRef = useRef(0);
@@ -338,6 +346,59 @@ export default function PdfEditor({ initialFile = null, ownerId, onBack, onAuthR
     }
     if (current) lines.push(current);
     return lines.length ? lines : [''];
+  }
+
+  function searchPdfText() {
+    if (!findText.trim() || !pdf) { setFindResults([]); return; }
+    const results = [];
+    const query = findText.toLowerCase();
+    for (let p = 1; p <= pageCount; p += 1) {
+      const pageEdits = edits.filter((e) => e.page === p && e.type === 'text');
+      pageEdits.forEach((edit, i) => {
+        const idx = (edit.text || '').toLowerCase().indexOf(query);
+        if (idx >= 0) results.push({ page: p, editId: edit.id, index: idx, text: edit.text });
+      });
+    }
+    setFindResults(results);
+    setCurrentFindIndex(results.length ? 0 : 0);
+  }
+
+  function insertTable() {
+    const rows = Math.max(1, Math.min(20, Number(tableRows) || 3));
+    const cols = Math.max(1, Math.min(10, Number(tableCols) || 3));
+    const cellW = 120;
+    const cellH = 24;
+    const startX = 60;
+    let startY = 100;
+    const page = activePage;
+    for (let r = 0; r < rows; r += 1) {
+      for (let c = 0; c < cols; c += 1) {
+        addEdit({
+          id: String(Date.now() + r * cols + c),
+          page,
+          type: 'text',
+          x: startX + c * cellW,
+          y: startY - r * cellH,
+          text: '',
+          family: fmt.family,
+          bold: false,
+          italic: false,
+          underline: false,
+          strikethrough: false,
+          size: 10,
+          color: '#000000',
+          align: 'left',
+          cellBorder: true,
+          cellWidth: cellW,
+          cellHeight: cellH,
+        });
+      }
+    }
+    setMessage(`Tabel ${rows}x${cols} ditambahkan.`);
+  }
+
+  function toggleHeaderFooter() {
+    setFmt((c) => ({ ...c, showHeader: !c.showHeader }));
   }
 
   useEffect(() => {
@@ -753,6 +814,22 @@ export default function PdfEditor({ initialFile = null, ownerId, onBack, onAuthR
               <button className={`ribbon-btn ${fmt.align === 'left' ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, align: 'left' }))} title="Rata kiri"><AlignLeft size={17} /></button>
               <button className={`ribbon-btn ${fmt.align === 'center' ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, align: 'center' }))} title="Rata tengah"><AlignCenter size={17} /></button>
               <button className={`ribbon-btn ${fmt.align === 'right' ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, align: 'right' }))} title="Rata kanan"><AlignRight size={17} /></button>
+              <button className="ribbon-btn" onClick={() => setFmt((c) => ({ ...c, align: 'justify' }))} title="Rata justified"><Columns size={17} /></button>
+              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: fmt.highlight }} /><input type="color" value={fmt.highlight} onChange={(e) => setFmt((c) => ({ ...c, highlight: e.target.value }))} /></label></div>
+              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: fmt.color }} /><input type="color" value={fmt.color} onChange={(e) => setFmt((c) => ({ ...c, color: e.target.value }))} /></label></div>
+            </div>
+            <div className="ribbon-section">
+              <div className="ribbon-section-title">Jarak & Margin</div>
+              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: '#fff', border: '1px solid #ccc' }} /><input type="number" min="1" max="10" value={fmt.spacing} onChange={(e) => setFmt((c) => ({ ...c, spacing: Number(e.target.value) || 1.4 }))} style={{ width: 40, height: 20, fontSize: 9 }} /></label><span style={{ fontSize: 7, color: '#888' }}>Spacing</span></div>
+              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: '#fff', border: '1px solid #ccc' }} /><input type="number" min="20" max="200" value={fmt.margin} onChange={(e) => setFmt((c) => ({ ...c, margin: Number(e.target.value) || 72 }))} style={{ width: 40, height: 20, fontSize: 9 }} /></label><span style={{ fontSize: 7, color: '#888' }}>Margin</span></div>
+              <button className={`ribbon-btn ${fmt.showHeader ? 'active' : ''}`} onClick={toggleHeaderFooter} title="Header/Footer"><PanelTop size={17} /></button>
+              <button className="ribbon-btn" onClick={() => setShowFind(true)} title="Cari & Ganti"><Search size={17} /></button>
+            </div>
+            <div className="ribbon-section">
+              <div className="ribbon-section-title">Tabel</div>
+              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: '#fff', border: '1px solid #ccc' }} /><input type="number" min="1" max="10" value={tableCols} onChange={(e) => setTableCols(e.target.value)} style={{ width: 36, height: 20, fontSize: 9 }} /></label><span style={{ fontSize: 7, color: '#888' }}>Kolom</span></div>
+              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: '#fff', border: '1px solid #ccc' }} /><input type="number" min="1" max="20" value={tableRows} onChange={(e) => setTableRows(e.target.value)} style={{ width: 36, height: 20, fontSize: 9 }} /></label><span style={{ fontSize: 7, color: '#888' }}>Baris</span></div>
+              <button className="ribbon-btn" onClick={insertTable} title="Sisipkan Tabel"><Table size={17} /></button>
             </div>
             <div className="ribbon-section editor-text-input-section">
               <input className="editor-text-input" value={text} onChange={(e) => setText(e.target.value)} placeholder={activeTool === 'link' ? 'Teks tautan...' : 'Ketik teks, lalu klik halaman'} />
@@ -906,6 +983,22 @@ export default function PdfEditor({ initialFile = null, ownerId, onBack, onAuthR
       @media (max-width: 900px) { .editor-pages { width: 138px; flex-basis: 138px; padding-right: 8px; padding-left: 8px; } .editor-text-input { width: 120px; } .editor-statusbar { font-size: 7px; } .ribbon-group { gap: 8px; padding: 5px 10px; } .ribbon-section { min-width: 100px; padding-right: 8px; margin-right: 6px; } }
       @media (max-width: 620px) { .editor-pages { width: 93px; flex-basis: 93px; padding: 9px 5px; } .page-thumb { width: 77px; } .ribbon-tabs { padding: 0 5px; } .ribbon-tab { padding: 6px 8px; font-size: 8px; } .ribbon-group { padding: 4px 8px; } .ribbon-section { min-width: 90px; } .editor-text-input { width: 100px; } }
     `}</style>
+    {showFind && <div className="modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setShowFind(false); }}>
+      <section className="tool-modal" role="dialog" aria-modal="true" aria-labelledby="find-title">
+        <header className="modal-header"><span className="modal-kicker">CARI & GANTI</span><h2 id="find-title">Cari di dokumen</h2><button className="icon-btn modal-close" onClick={() => setShowFind(false)} aria-label="Tutup"><X size={18} /></button></header>
+        <div className="modal-body">
+          <div className="options-panel">
+            <div className="options-title">Pencarian</div>
+            <label className="field-label">Kata kunci<input className="editor-text-input" value={findText} onChange={(e) => { setFindText(e.target.value); }} placeholder="Ketik untuk mencari..." /></label>
+            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              <button className="process-button" onClick={searchPdfText}>Cari</button>
+              <button className="process-button" disabled={!findResults.length} onClick={() => { if (findResults.length) { const next = (currentFindIndex + 1) % findResults.length; setCurrentFindIndex(next); const r = findResults[next]; setActivePage(r.page); } }}>Berikutnya</button>
+            </div>
+            {findResults.length > 0 && <div className="editor-feedback" style={{ marginTop: 8 }}>Ditemukan {findResults.length} hasil · urutan {currentFindIndex + 1}/{findResults.length}</div>}
+          </div>
+        </div>
+      </section>
+    </div>}
   </section>;
 }
 
