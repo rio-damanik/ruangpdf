@@ -7,6 +7,7 @@ import {
   AlignLeft, AlignCenter, AlignRight, Square, Circle, Zap, Layout, View,
   Eye, EyeOff, ZoomIn, ZoomOut, Menu, BarChart3, Table, Columns, Rows, FileText, ChevronUp,
   PanelRight, PanelBottom, PanelLeft, PanelTop, Grid3x3, Type, Heading, Image as LucideImage,
+  File, FilePlus, ChevronsLeft, ChevronsRight, Minus, Maximize2, Minimize2,
 } from 'lucide-react';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import * as pdfjs from 'pdfjs-dist';
@@ -793,43 +794,43 @@ export default function PdfEditor({ initialFile = null, ownerId, onBack, onAuthR
           return <button key={t.id} className={`ribbon-tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id)}><Icon size={16} strokeWidth={1.6} /><span>{t.label}</span></button>;
         })}
       </div>
-      <div className={`ribbon-group ribbon-${activeTab}`}>
+      <div className="ribbon-group ribbon-${activeTab}">
         {activeTab === 'home' && (
           <>
             <div className="ribbon-section">
               <div className="ribbon-section-title">Font</div>
               <div className="ribbon-control"><select className="ribbon-select" value={fmt.family} onChange={(e) => setFmt((c) => ({ ...c, family: e.target.value }))}>{FONT_LIST.map((f) => <option key={f} value={f}>{f}</option>)}</select></div>
               <div className="ribbon-control"><input className="ribbon-size" type="number" min="8" max="72" value={fmt.size} onChange={(e) => setFmt((c) => ({ ...c, size: Number(e.target.value) || 18 }))} /></div>
-              <button className={`ribbon-btn ${fmt.bold ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, bold: !c.bold }))} title="Tebal"><Bold size={17} /></button>
-              <button className={`ribbon-btn ${fmt.italic ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, italic: !c.italic }))} title="Miring"><Italic size={17} /></button>
-              <button className={`ribbon-btn ${fmt.underline ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, underline: !c.underline }))} title="Garis bawah"><Underline size={17} /></button>
+              <button className={`ribbon-btn ${fmt.bold ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, bold: !c.bold }))} title="Tebal"><Bold size={14} /><span>Tebal</span></button>
+              <button className={`ribbon-btn ${fmt.italic ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, italic: !c.italic }))} title="Miring"><Italic size={14} /><span>Miring</span></button>
+              <button className={`ribbon-btn ${fmt.underline ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, underline: !c.underline }))} title="Garis bawah"><Underline size={14} /><span>Garis Bawah</span></button>
             </div>
             <div className="ribbon-section">
               <div className="ribbon-section-title">Warna</div>
-              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: fmt.color }} /><input type="color" value={fmt.color} onChange={(e) => setFmt((c) => ({ ...c, color: e.target.value }))} /></label></div>
-              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: fmt.highlight }} /><input type="color" value={fmt.highlight} onChange={(e) => setFmt((c) => ({ ...c, highlight: e.target.value }))} /></label></div>
+              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: fmt.color }} /><input type="color" value={fmt.color} onChange={(e) => setFmt((c) => ({ ...c, color: e.target.value }))} /></label><span style={{fontSize:8,color:'#888'}}>Teks</span></div>
+              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: fmt.highlight }} /><input type="color" value={fmt.highlight} onChange={(e) => setFmt((c) => ({ ...c, highlight: e.target.value }))} /></label><span style={{fontSize:8,color:'#888'}}>Highlight</span></div>
             </div>
             <div className="ribbon-section">
               <div className="ribbon-section-title">Susunan</div>
-              <button className={`ribbon-btn ${fmt.align === 'left' ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, align: 'left' }))} title="Rata kiri"><AlignLeft size={17} /></button>
-              <button className={`ribbon-btn ${fmt.align === 'center' ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, align: 'center' }))} title="Rata tengah"><AlignCenter size={17} /></button>
-              <button className={`ribbon-btn ${fmt.align === 'right' ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, align: 'right' }))} title="Rata kanan"><AlignRight size={17} /></button>
-              <button className="ribbon-btn" onClick={() => setFmt((c) => ({ ...c, align: 'justify' }))} title="Rata justified"><Columns size={17} /></button>
+              <button className={`ribbon-btn ${fmt.align === 'left' ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, align: 'left' }))} title="Rata kiri"><AlignLeft size={14} /><span>Rata Kiri</span></button>
+              <button className={`ribbon-btn ${fmt.align === 'center' ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, align: 'center' }))} title="Rata tengah"><AlignCenter size={14} /><span>Tengah</span></button>
+              <button className={`ribbon-btn ${fmt.align === 'right' ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, align: 'right' }))} title="Rata kanan"><AlignRight size={14} /><span>Rata Kanan</span></button>
+              <button className={`ribbon-btn ${fmt.align === 'justify' ? 'active' : ''}`} onClick={() => setFmt((c) => ({ ...c, align: 'justify' }))} title="Rata justified"><Columns size={14} /><span>Justify</span></button>
               <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: fmt.highlight }} /><input type="color" value={fmt.highlight} onChange={(e) => setFmt((c) => ({ ...c, highlight: e.target.value }))} /></label></div>
               <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: fmt.color }} /><input type="color" value={fmt.color} onChange={(e) => setFmt((c) => ({ ...c, color: e.target.value }))} /></label></div>
             </div>
             <div className="ribbon-section">
               <div className="ribbon-section-title">Jarak & Margin</div>
-              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: '#fff', border: '1px solid #ccc' }} /><input type="number" min="1" max="10" value={fmt.spacing} onChange={(e) => setFmt((c) => ({ ...c, spacing: Number(e.target.value) || 1.4 }))} style={{ width: 40, height: 20, fontSize: 9 }} /></label><span style={{ fontSize: 7, color: '#888' }}>Spacing</span></div>
-              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: '#fff', border: '1px solid #ccc' }} /><input type="number" min="20" max="200" value={fmt.margin} onChange={(e) => setFmt((c) => ({ ...c, margin: Number(e.target.value) || 72 }))} style={{ width: 40, height: 20, fontSize: 9 }} /></label><span style={{ fontSize: 7, color: '#888' }}>Margin</span></div>
-              <button className={`ribbon-btn ${fmt.showHeader ? 'active' : ''}`} onClick={toggleHeaderFooter} title="Header/Footer"><PanelTop size={17} /></button>
-              <button className="ribbon-btn" onClick={() => setShowFind(true)} title="Cari & Ganti"><Search size={17} /></button>
+              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: '#fff', border: '1px solid #ccc' }} /><input type="number" min="1" max="10" step="0.1" value={fmt.spacing} onChange={(e) => setFmt((c) => ({ ...c, spacing: Number(e.target.value) || 1.4 }))} style={{ width: 50, height: 24, fontSize: 9 }} /></label><span style={{ fontSize: 8, color: '#888' }}>Spacing</span></div>
+              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: '#fff', border: '1px solid #ccc' }} /><input type="number" min="20" max="200" value={fmt.margin} onChange={(e) => setFmt((c) => ({ ...c, margin: Number(e.target.value) || 72 }))} style={{ width: 50, height: 24, fontSize: 9 }} /></label><span style={{ fontSize: 8, color: '#888' }}>Margin</span></div>
+              <button className={`ribbon-btn ${fmt.showHeader ? 'active' : ''}`} onClick={toggleHeaderFooter} title="Header/Footer"><File size={14} /><span>Header</span></button>
+              <button className="ribbon-btn" onClick={() => setShowFind(true)} title="Cari & Ganti"><Search size={14} /><span>Cari</span></button>
             </div>
             <div className="ribbon-section">
               <div className="ribbon-section-title">Tabel</div>
-              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: '#fff', border: '1px solid #ccc' }} /><input type="number" min="1" max="10" value={tableCols} onChange={(e) => setTableCols(e.target.value)} style={{ width: 36, height: 20, fontSize: 9 }} /></label><span style={{ fontSize: 7, color: '#888' }}>Kolom</span></div>
-              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: '#fff', border: '1px solid #ccc' }} /><input type="number" min="1" max="20" value={tableRows} onChange={(e) => setTableRows(e.target.value)} style={{ width: 36, height: 20, fontSize: 9 }} /></label><span style={{ fontSize: 7, color: '#888' }}>Baris</span></div>
-              <button className="ribbon-btn" onClick={insertTable} title="Sisipkan Tabel"><Table size={17} /></button>
+              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: '#fff', border: '1px solid #ccc' }} /><input type="number" min="1" max="10" value={tableCols} onChange={(e) => setTableCols(e.target.value)} style={{ width: 40, height: 24, fontSize: 9 }} /></label><span style={{ fontSize: 8, color: '#888' }}>Kolom</span></div>
+              <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: '#fff', border: '1px solid #ccc' }} /><input type="number" min="1" max="20" value={tableRows} onChange={(e) => setTableRows(e.target.value)} style={{ width: 40, height: 24, fontSize: 9 }} /></label><span style={{ fontSize: 8, color: '#888' }}>Baris</span></div>
+              <button className="ribbon-btn" onClick={insertTable} title="Sisipkan Tabel"><Table size={14} /><span>Tabel</span></button>
             </div>
             <div className="ribbon-section editor-text-input-section">
               <input className="editor-text-input" value={text} onChange={(e) => setText(e.target.value)} placeholder={activeTool === 'link' ? 'Teks tautan...' : 'Ketik teks, lalu klik halaman'} />
@@ -837,65 +838,65 @@ export default function PdfEditor({ initialFile = null, ownerId, onBack, onAuthR
             </div>
           </>
         )}
-        {activeTab === 'insert' && (
-          <>
-            <div className="ribbon-section">
-              <div className="ribbon-section-title">Sisipkan</div>
-              <button className="ribbon-btn" onClick={() => { setActiveTool('text'); setMessage('Klik halaman untuk menempatkan teks.'); }} title="Teks"><TextCursorInput size={17} /><span>Teks</span></button>
-              <button className="ribbon-btn" onClick={() => { setActiveTool('image'); imageInput.current?.click(); }} title="Gambar"><Image size={17} /><span>Gambar</span></button>
-              <input ref={imageInput} type="file" accept="image/png,image/jpeg" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) { setImageFile(f); setImageUrl(URL.createObjectURL(f)); } }} />
-              <button className="ribbon-btn" onClick={() => { setActiveTool('stamp'); setMessage('Klik halaman untuk menempatkan stempel.'); }} title="Stempel"><Stamp size={17} /><span>Stempel</span></button>
-              <button className="ribbon-btn" onClick={() => { setActiveTool('note'); setMessage('Klik halaman untuk menempatkan catatan.'); }} title="Catatan"><MessageSquareText size={17} /><span>Catatan</span></button>
-              <button className="ribbon-btn" onClick={() => { setActiveTool('link'); setMessage('Ketik teks dan URL, lalu klik halaman.'); }} title="Tautan"><Link2 size={17} /><span>Tautan</span></button>
-            </div>
-            <div className="ribbon-section">
-              <div className="ribbon-section-title">Bentuk</div>
-              {SHAPE_TOOLS.map((tool) => {
-                const labels = { line: 'Garis', arrow: 'Panah', rectangle: 'Persegi', circle: 'Lingkaran' };
-                const Icons = { line: ArrowRight, arrow: ArrowRight, rectangle: Square, circle: Circle };
-                const Icon = Icons[tool];
-                return <button key={tool} className={`ribbon-btn ${activeTool === tool ? 'active' : ''}`} onClick={() => { setActiveTool(tool); setMessage(`Tarik di halaman untuk membuat ${labels[tool]}.`); }} title={labels[tool]}><Icon size={17} /></button>;
-              })}
-            </div>
-          </>
-        )}
-        {activeTab === 'page' && (
-          <>
-            <div className="ribbon-section">
-              <div className="ribbon-section-title">Manajemen Halaman</div>
-              <button className="ribbon-btn" onClick={() => pagesInput.current?.click()} title="Tambah halaman"><PlusIcon size={17} /><span>Tambah</span></button>
-              <input ref={pagesInput} type="file" accept=".pdf,application/pdf" hidden onChange={addPages} />
-              <button className="ribbon-btn" onClick={addBlankPage} disabled={!file} title="Halaman kosong"><FilePlus2 size={17} /><span>Kosong</span></button>
-              <button className="ribbon-btn" onClick={deleteCurrentPage} disabled={!file || pageCount <= 1} title="Hapus halaman"><Trash2 size={17} /><span>Hapus</span></button>
-              <button className="ribbon-btn" onClick={() => { setActiveTool('rotate'); setMessage('Putar halaman aktif.'); }} title="Putar halaman"><RotateCw size={17} /><span>Putar</span></button>
-            </div>
-          </>
-        )}
-        {activeTab === 'draw' && (
-          <>
-            <div className="ribbon-section">
-              <div className="ribbon-section-title">Alat Gambar</div>
-              {DRAW_TOOLS.map((tool) => {
-                const labels = { pen: 'Pena', highlighter: 'Stabilo', eraser: 'Penghapus', select: 'Pilih' };
-                const Icons = { pen: PenTool, highlighter: Highlighter, eraser: Zap, select: BarChart3 };
-                const Icon = Icons[tool];
-                return <button key={tool} className={`ribbon-btn ${activeTool === tool ? 'active' : ''}`} onClick={() => { setActiveTool(tool); setMessage(labels[tool]); }} title={labels[tool]}><Icon size={17} /></button>;
-              })}
-            </div>
-          </>
-        )}
-        {activeTab === 'view' && (
-          <>
-            <div className="ribbon-section">
-              <div className="ribbon-section-title">Tampilan</div>
-              <button className="ribbon-btn" onClick={() => setZoom((z) => Math.max(50, z - 25))} title="Perbesar"><ZoomOut size={17} /></button>
-              <span className="ribbon-zoom">{zoom}%</span>
-              <button className="ribbon-btn" onClick={() => setZoom((z) => Math.min(300, z + 25))} title="Kecilkan"><ZoomIn size={17} /></button>
-              <button className={`ribbon-btn ${showRuler ? 'active' : ''}`} onClick={() => setShowRuler((v) => !v)} title="Penggaris"><Zap size={17} /></button>
-              <button className={`ribbon-btn ${showNav ? 'active' : ''}`} onClick={() => setShowNav((v) => !v)} title="Panel navigasi"><Layout size={17} /></button>
-            </div>
-          </>
-        )}
+{activeTab === 'insert' && (
+           <>
+             <div className="ribbon-section">
+               <div className="ribbon-section-title">Sisipkan</div>
+               <button className="ribbon-btn" onClick={() => { setActiveTool('text'); setMessage('Klik halaman untuk menempatkan teks.'); }} title="Teks"><TextCursorInput size={14} /><span>Teks</span></button>
+               <button className="ribbon-btn" onClick={() => { setActiveTool('image'); imageInput.current?.click(); }} title="Gambar"><Image size={14} /><span>Gambar</span></button>
+               <input ref={imageInput} type="file" accept="image/png,image/jpeg" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) { setImageFile(f); setImageUrl(URL.createObjectURL(f)); } }} />
+               <button className="ribbon-btn" onClick={() => { setActiveTool('stamp'); setMessage('Klik halaman untuk menempatkan stempel.'); }} title="Stempel"><Stamp size={14} /><span>Stempel</span></button>
+               <button className="ribbon-btn" onClick={() => { setActiveTool('note'); setMessage('Klik halaman untuk menempatkan catatan.'); }} title="Catatan"><MessageSquareText size={14} /><span>Catatan</span></button>
+               <button className="ribbon-btn" onClick={() => { setActiveTool('link'); setMessage('Ketik teks dan URL, lalu klik halaman.'); }} title="Tautan"><Link2 size={14} /><span>Tautan</span></button>
+             </div>
+             <div className="ribbon-section">
+               <div className="ribbon-section-title">Bentuk</div>
+               {SHAPE_TOOLS.map((tool) => {
+                 const labels = { line: 'Garis', arrow: 'Panah', rectangle: 'Persegi', circle: 'Lingkaran' };
+                 const Icons = { line: ArrowRight, arrow: ArrowRight, rectangle: Square, circle: Circle };
+                 const Icon = Icons[tool];
+                 return <button key={tool} className={`ribbon-btn ${activeTool === tool ? 'active' : ''}`} onClick={() => { setActiveTool(tool); setMessage(`Tarik di halaman untuk membuat ${labels[tool]}.`); }} title={labels[tool]}><Icon size={14} /><span>{labels[tool]}</span></button>;
+               })}
+             </div>
+           </>
+         )}
+{activeTab === 'page' && (
+           <>
+             <div className="ribbon-section">
+               <div className="ribbon-section-title">Manajemen Halaman</div>
+               <button className="ribbon-btn" onClick={() => pagesInput.current?.click()} title="Tambah halaman"><PlusIcon size={14} /><span>Tambah</span></button>
+               <input ref={pagesInput} type="file" accept=".pdf,application/pdf" hidden onChange={addPages} />
+               <button className="ribbon-btn" onClick={addBlankPage} disabled={!file} title="Halaman kosong"><FilePlus2 size={14} /><span>Kosong</span></button>
+               <button className="ribbon-btn" onClick={deleteCurrentPage} disabled={!file || pageCount <= 1} title="Hapus halaman"><Trash2 size={14} /><span>Hapus</span></button>
+               <button className="ribbon-btn" onClick={() => { setActiveTool('rotate'); setMessage('Putar halaman aktif.'); }} title="Putar halaman"><RotateCw size={14} /><span>Putar</span></button>
+             </div>
+           </>
+         )}
+         {activeTab === 'draw' && (
+           <>
+             <div className="ribbon-section">
+               <div className="ribbon-section-title">Alat Gambar</div>
+               {DRAW_TOOLS.map((tool) => {
+                 const labels = { pen: 'Pena', highlighter: 'Stabilo', eraser: 'Penghapus', select: 'Pilih' };
+                 const Icons = { pen: PenTool, highlighter: Highlighter, eraser: Zap, select: BarChart3 };
+                 const Icon = Icons[tool];
+                 return <button key={tool} className={`ribbon-btn ${activeTool === tool ? 'active' : ''}`} onClick={() => { setActiveTool(tool); setMessage(labels[tool]); }} title={labels[tool]}><Icon size={14} /><span>{labels[tool]}</span></button>;
+               })}
+             </div>
+           </>
+         )}
+         {activeTab === 'view' && (
+           <>
+             <div className="ribbon-section">
+               <div className="ribbon-section-title">Tampilan</div>
+               <button className="ribbon-btn" onClick={() => setZoom((z) => Math.max(50, z - 25))} title="Perbesar"><ZoomOut size={14} /><span>Perbesar</span></button>
+               <span className="ribbon-zoom">{zoom}%</span>
+               <button className="ribbon-btn" onClick={() => setZoom((z) => Math.min(300, z + 25))} title="Kecilkan"><ZoomIn size={14} /><span>Kecilkan</span></button>
+               <button className={`ribbon-btn ${showRuler ? 'active' : ''}`} onClick={() => setShowRuler((v) => !v)} title="Penggaris"><Zap size={14} /><span>Penggaris</span></button>
+               <button className={`ribbon-btn ${showNav ? 'active' : ''}`} onClick={() => setShowNav((v) => !v)} title="Panel navigasi"><Layout size={14} /><span>Navigasi</span></button>
+             </div>
+           </>
+         )}
       </div>
     </div>
 
@@ -931,19 +932,20 @@ export default function PdfEditor({ initialFile = null, ownerId, onBack, onAuthR
       .ribbon-tab.active { border-bottom-color: #5273e0; color: #5273e0; background: #fff; }
       .ribbon-tab svg { color: inherit; }
       .ribbon-group { display: flex; gap: 14px; padding: 7px 14px; background: #fff; overflow-x: auto; }
-      .ribbon-section { display: flex; flex-direction: column; gap: 6px; border-right: 1px solid #f0f2f4; padding-right: 12px; margin-right: 10px; min-width: 120px; }
-      .ribbon-section-title { color: #8a9599; font-size: 7px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
-      .ribbon-control { display: flex; flex-direction: column; gap: 3px; }
-      .ribbon-select, .ribbon-size { width: 90px; height: 24px; padding: 0 6px; border: 1px solid #e1e6e8; border-radius: 4px; background: #fff; font-size: 9px; color: #455159; }
-      .ribbon-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 8px; border: 0; border-radius: 5px; background: transparent; color: #515c63; font-size: 8px; white-space: nowrap; cursor: pointer; min-width: 46px; }
+      .ribbon-section { display: flex; flex-direction: row; align-items: center; gap: 4px; border-right: 1px solid #f0f2f4; padding-right: 12px; margin-right: 10px; min-width: auto; }
+      .ribbon-section-title { color: #8a9599; font-size: 7px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-right: 8px; white-space: nowrap; }
+      .ribbon-control { display: flex; flex-direction: row; align-items: center; gap: 3px; }
+      .ribbon-select, .ribbon-size { width: auto; min-width: 70px; height: 24px; padding: 0 6px; border: 1px solid #e1e6e8; border-radius: 4px; background: #fff; font-size: 9px; color: #455159; }
+      .ribbon-btn { display: flex; flex-direction: row; align-items: center; gap: 4px; padding: 4px 8px; border: 0; border-radius: 5px; background: transparent; color: #515c63; font-size: 8px; white-space: nowrap; cursor: pointer; min-width: auto; }
       .ribbon-btn:hover:not(.active) { background: #f6f7f5; color: #25323a; }
       .ribbon-btn.active { background: #fff0ef; color: #d34b42; }
-      .ribbon-btn span { font-size: 7px; }
+      .ribbon-btn svg { flex-shrink: 0; }
+      .ribbon-btn span { font-size: 8px; }
       .ribbon-color { position: relative; display: grid; place-items: center; width: 24px; height: 25px; }
       .ribbon-color > span { width: 16px; height: 16px; border: 1px solid #aeb7bd; border-radius: 50%; pointer-events: none; }
       .ribbon-color input { position: absolute; inset: 0; width: 24px; height: 25px; opacity: 0; cursor: pointer; }
-      .editor-text-input-section { display: flex; flex-direction: column; gap: 4px; min-width: 160px; }
-      .editor-text-input { width: 160px; height: 26px; padding: 0 7px; border: 1px solid #e1e6e8; border-radius: 5px; background: #fff; color: #455159; font-size: 9px; }
+      .editor-text-input-section { display: flex; flex-direction: row; align-items: center; gap: 4px; min-width: 180px; }
+      .editor-text-input { width: 180px; height: 26px; padding: 0 7px; border: 1px solid #e1e6e8; border-radius: 5px; background: #fff; color: #455159; font-size: 9px; }
       .editor-link-input { width: 140px; }
       .ribbon-zoom { font-size: 9px; color: #515c63; margin: 0 6px; }
       .editor-workspace { min-height: 0; display: flex; flex: 1; overflow: hidden; }
