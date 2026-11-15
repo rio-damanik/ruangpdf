@@ -372,34 +372,22 @@ export default function PdfEditor({ initialFile = null, ownerId, onBack, onAuthR
     const startX = 60;
     let startY = 100;
     const page = activePage;
-    for (let r = 0; r < rows; r += 1) {
-      for (let c = 0; c < cols; c += 1) {
-        addEdit({
-          id: String(Date.now() + r * cols + c),
-          page,
-          type: 'text',
-          x: startX + c * cellW,
-          y: startY - r * cellH,
-          text: '',
-          family: fmt.family,
-          bold: false,
-          italic: false,
-          underline: false,
-          strikethrough: false,
-          size: 10,
-          color: '#000000',
-          align: 'left',
-          cellBorder: true,
-          cellWidth: cellW,
-          cellHeight: cellH,
-        });
-      }
-    }
+    addEdit({
+      id: String(Date.now()),
+      page,
+      type: 'table',
+      x: startX,
+      y: startY,
+      rows,
+      cols,
+      cellWidth: cellW,
+      cellHeight: cellH,
+    });
     setMessage(`Tabel ${rows}x${cols} ditambahkan.`);
   }
 
   function toggleHeaderFooter() {
-    setFmt((c) => ({ ...c, showHeader: !c.showHeader }));
+    setFmt((c) => ({ ...c, showHeader: !c.showHeader, showFooter: !c.showFooter }));
   }
 
   useEffect(() => {
@@ -429,12 +417,18 @@ export default function PdfEditor({ initialFile = null, ownerId, onBack, onAuthR
 
     if (activeTool === 'image') {
       if (!imageFile) { imageInput.current?.click(); return; }
-      addEdit({
-        id: String(Date.now()),
-        page, type: 'image', x, y,
-        imageUrl: imageUrl, imageType: imageFile.type === 'image/png' ? 'png' : 'jpg',
-        width: 150, height: 120,
-      });
+      const reader = new FileReader();
+      reader.onload = () => {
+        addEdit({
+          id: String(Date.now()),
+          page, type: 'image', x, y,
+          imageUrl: imageUrl,
+          imageBytes: reader.result,
+          imageType: imageFile.type === 'image/png' ? 'png' : 'jpg',
+          width: 150, height: 120,
+        });
+      };
+      reader.readAsArrayBuffer(imageFile);
       setImageFile(null);
       setImageUrl(null);
       return;
@@ -560,15 +554,32 @@ export default function PdfEditor({ initialFile = null, ownerId, onBack, onAuthR
       const size = page.getSize();
       const embedImage = async (bytes, type) => type === 'png' ? await document.embedPng(bytes) : await document.embedJpg(bytes);
       switch (edit.type) {
-        case 'text': {
-          const f = fontFor(edit);
-          const s = Number(edit.size || 18);
-          page.drawText(edit.text || '', {
-            x: edit.x, y: edit.y, size: s, font: f, color: hexToRgb(edit.color || '#000'),
-            maxWidth: size.width - edit.x - 24,
-          });
-          break;
-        }
+case 'text': {
+           const f = fontFor(edit);
+           const s = Number(edit.size || 18);
+           page.drawText(edit.text || '', {
+             x: edit.x, y: edit.y, size: s, font: f, color: hexToRgb(edit.color || '#000'),
+             maxWidth: size.width - edit.x - 24,
+           });
+           if (edit.cellBorder) {
+             page.drawRectangle({ x: edit.x - 2, y: edit.y - 2, width: edit.cellWidth || 120, height: edit.cellHeight || 24, color: hexToRgb('#000000'), borderWidth: 1 });
+           }
+           break;
+         }
+         case 'table': {
+           const cellW = edit.cellWidth || 120;
+           const cellH = edit.cellHeight || 24;
+           const rows = edit.rows || 3;
+           const cols = edit.cols || 3;
+           for (let r = 0; r < rows; r += 1) {
+             for (let c = 0; c < cols; c += 1) {
+               const cx = edit.x + c * cellW;
+               const cy = edit.y - r * cellH;
+               page.drawRectangle({ x: cx, y: cy, width: cellW, height: cellH, color: hexToRgb('#000000'), borderWidth: 1 });
+             }
+           }
+           break;
+         }
         case 'image': {
           if (edit.imageBytes) {
             const image = await embedImage(edit.imageBytes, edit.imageType || 'jpg');
@@ -609,14 +620,33 @@ export default function PdfEditor({ initialFile = null, ownerId, onBack, onAuthR
           page.drawText(edit.text || 'RuangPDF', { x: edit.x, y: edit.y, size: Number(edit.size || 24), font: boldFont, color: hexToRgb(edit.color || '#d32f2f') });
           break;
         }
-        case 'note': {
-          page.drawRectangle({ x: edit.x, y: edit.y, width: 120, height: 60, color: rgb(1, 0.96, 0.73), opacity: 0.48 });
-          page.drawText(edit.text || 'Catatan', { x: edit.x + 6, y: edit.y + 8, size: 11, font, color: rgb(0.13, 0.16, 0.19) });
-          break;
-        }
-      }
-    }
-    return document;
+case 'note': {
+           page.drawRectangle({ x: edit.x, y: edit.y, width: 120, height: 60, color: rgb(1, 0.96, 0.73), opacity: 0.48 });
+           page.drawText(edit.text || 'Catatan', { x: edit.x + 6, y: edit.y + 8, size: 11, font, color: rgb(0.13, 0.16, 0.19) });
+           break;
+         }
+         case 'link': {
+           page.drawText(edit.text || edit.url || '', { x: edit.x, y: edit.y, size: Number(edit.size || 18), font: fontFor(edit), color: hexToRgb('#0000EE') });
+           page.addLink({ x: edit.x, y: edit.y - 10, width: 200, height: 20, url: edit.url || '' });
+           break;
+         }
+       }
+     }
+     if (fmt.showHeader && fmt.header) {
+       const f = fontFor({ family: fmt.family, size: 10, bold: false, italic: false });
+       for (let p = 1; p <= pageCount; p += 1) {
+         const pg = document.getPage(p - 1);
+         pg.drawText(fmt.header, { x: fmt.margin, y: pg.getHeight() - 30, size: 10, font: f, color: hexToRgb('#666666') });
+       }
+     }
+     if (fmt.showFooter && fmt.footer) {
+       const f = fontFor({ family: fmt.family, size: 10, bold: false, italic: false });
+       for (let p = 1; p <= pageCount; p += 1) {
+         const pg = document.getPage(p - 1);
+         pg.drawText(fmt.footer, { x: fmt.margin, y: 20, size: 10, font: f, color: hexToRgb('#666666') });
+       }
+     }
+     return document;
   }
 
   async function savePdf() {
@@ -823,6 +853,8 @@ export default function PdfEditor({ initialFile = null, ownerId, onBack, onAuthR
               <div className="ribbon-section-title">Jarak & Margin</div>
               <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: '#fff', border: '1px solid #ccc' }} /><input type="number" min="1" max="10" step="0.1" value={fmt.spacing} onChange={(e) => setFmt((c) => ({ ...c, spacing: Number(e.target.value) || 1.4 }))} style={{ width: 50, height: 24, fontSize: 9 }} /></label><span style={{ fontSize: 8, color: '#888' }}>Spacing</span></div>
               <div className="ribbon-control"><label className="ribbon-color"><span style={{ background: '#fff', border: '1px solid #ccc' }} /><input type="number" min="20" max="200" value={fmt.margin} onChange={(e) => setFmt((c) => ({ ...c, margin: Number(e.target.value) || 72 }))} style={{ width: 50, height: 24, fontSize: 9 }} /></label><span style={{ fontSize: 8, color: '#888' }}>Margin</span></div>
+              <div className="ribbon-control"><input type="text" value={fmt.header} onChange={(e) => setFmt((c) => ({ ...c, header: e.target.value }))} placeholder="Header text" style={{ width: 80, height: 24, fontSize: 9 }} /></div>
+              <div className="ribbon-control"><input type="text" value={fmt.footer} onChange={(e) => setFmt((c) => ({ ...c, footer: e.target.value }))} placeholder="Footer text" style={{ width: 80, height: 24, fontSize: 9 }} /></div>
               <button className={`ribbon-btn ${fmt.showHeader ? 'active' : ''}`} onClick={toggleHeaderFooter} title="Header/Footer"><File size={14} /><span>Header</span></button>
               <button className="ribbon-btn" onClick={() => setShowFind(true)} title="Cari & Ganti"><Search size={14} /><span>Cari</span></button>
             </div>
